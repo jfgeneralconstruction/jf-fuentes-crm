@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JF Fuentes GC — CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ─── Reset & Base ──────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f12;
+    --bg2: #13161b;
+    --bg3: #1a1e25;
+    --bg4: #222730;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --text2: #8b909e;
+    --text3: #555b6a;
+    --accent: #3b7eff;
+    --accent2: #1a56d4;
+    --green: #22c78a;
+    --green-bg: rgba(34,199,138,0.1);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245,158,11,0.1);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --blue-bg: rgba(59,126,255,0.1);
+    --purple: #a855f7;
+    --purple-bg: rgba(168,85,247,0.1);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --sidebar-w: 220px;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    height: 100vh;
+  }
+
+  /* ─── Sidebar ───────────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100vh;
+  }
+  .sidebar-logo {
+    padding: 22px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600; color: #fff;
+    margin-bottom: 10px;
+  }
+  .logo-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .logo-sub { font-size: 11px; color: var(--text3); }
+  .nav { padding: 12px 10px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--text2); font-size: 13px;
+    font-weight: 400; transition: all .15s; margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: var(--font);
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--blue-bg); color: var(--accent); font-weight: 500; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; background: var(--red); color: #fff;
+    font-size: 10px; font-weight: 600; padding: 2px 6px;
+    border-radius: 10px; min-width: 18px; text-align: center;
+  }
+  .sidebar-footer {
+    padding: 14px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .today-box {
+    background: var(--bg3); border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .today-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+  .today-date { font-size: 12px; font-weight: 500; color: var(--text); }
+
+  /* ─── Main ──────────────────────────────────────────────── */
+  .main {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    min-width: 0;
+  }
+  .topbar {
+    height: 56px; background: var(--bg2); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 24px; gap: 12px;
+    flex-shrink: 0;
+  }
+  .topbar-title { font-size: 16px; font-weight: 600; flex: 1; }
+  .topbar-actions { display: flex; gap: 8px; }
+  .btn {
+    padding: 7px 16px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border2); background: var(--bg3);
+    color: var(--text); font-size: 13px; cursor: pointer;
+    font-family: var(--font); font-weight: 500; transition: all .15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--bg4); border-color: rgba(255,255,255,0.18); }
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-ghost { border-color: transparent; background: transparent; color: var(--text2); }
+  .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+  .btn-danger { border-color: var(--red-bg); color: var(--red); background: var(--red-bg); }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+  .btn-success { border-color: var(--green-bg); color: var(--green); background: var(--green-bg); }
+
+  /* ─── Page Content ──────────────────────────────────────── */
+  .page { display: none; flex: 1; overflow-y: auto; padding: 24px; }
+  .page.active { display: block; }
+
+  /* ─── Stats Grid ────────────────────────────────────────── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+  .stat-val { font-size: 26px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+  .stat-sub { font-size: 12px; color: var(--text2); }
+  .stat-card.green .stat-val { color: var(--green); }
+  .stat-card.amber .stat-val { color: var(--amber); }
+  .stat-card.accent .stat-val { color: var(--accent); }
+
+  /* ─── Cards ─────────────────────────────────────────────── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+  .card-title span { color: var(--text3); font-weight: 400; font-size: 12px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* ─── Badges ────────────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-approved { background: var(--green-bg); color: var(--green); }
+  .badge-followup { background: var(--amber-bg); color: var(--amber); }
+  .badge-rejected { background: var(--red-bg); color: var(--red); }
+  .badge-notsent  { background: var(--blue-bg); color: var(--accent); }
+  .badge-estimating { background: var(--purple-bg); color: var(--purple); }
+  .badge-delayed  { background: rgba(100,100,100,0.15); color: var(--text2); }
+  .badge-overdue  { background: var(--red-bg); color: var(--red); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+  /* ─── Table ─────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--bg3); }
+  th {
+    padding: 10px 14px; text-align: left; font-size: 11px;
+    font-weight: 500; color: var(--text3); text-transform: uppercase;
+    letter-spacing: .5px; white-space: nowrap; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; transition: background .1s; }
+  tbody tr:hover td { background: var(--bg3); }
+  .mono { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+  td.name { font-weight: 500; }
+  td.amount { font-weight: 600; font-family: var(--mono); }
+
+  /* ─── Filters ───────────────────────────────────────────── */
+  .filters {
+    display: flex; gap: 10px; margin-bottom: 16px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .filters input, .filters select {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); padding: 7px 12px; border-radius: var(--radius-sm);
+    font-size: 13px; font-family: var(--font); outline: none;
+    transition: border-color .15s;
+  }
+  .filters input { min-width: 200px; flex: 1; }
+  .filters input:focus, .filters select:focus { border-color: var(--accent); }
+  .filters select option { background: var(--bg2); }
+
+  /* ─── Alert Banner ──────────────────────────────────────── */
+  .alert {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-radius: var(--radius-sm);
+    margin-bottom: 14px; font-size: 13px;
+    border: 1px solid;
+  }
+  .alert-red { background: var(--red-bg); border-color: rgba(239,68,68,0.25); color: #fca5a5; }
+  .alert-amber { background: var(--amber-bg); border-color: rgba(245,158,11,0.25); color: #fcd34d; }
+  .alert-blue { background: var(--blue-bg); border-color: rgba(59,126,255,0.25); color: #93c5fd; }
+
+  /* ─── Follow Up Cards ───────────────────────────────────── */
+  .fu-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+    transition: border-color .15s;
+  }
+  .fu-card.overdue { border-color: rgba(239,68,68,0.35); border-left: 3px solid var(--red); }
+  .fu-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .fu-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .fu-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text2); }
+  .fu-meta a { color: var(--accent); text-decoration: none; }
+  .fu-meta a:hover { text-decoration: underline; }
+  .touch-track { display: flex; gap: 5px; margin: 10px 0; align-items: center; }
+  .touch-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bg4); border: 1px solid var(--border2); transition: background .2s; }
+  .touch-dot.done { background: var(--accent); border-color: var(--accent); }
+  .touch-label { font-size: 11px; color: var(--text3); margin-left: 6px; }
+  .fu-note { font-size: 12px; color: var(--text2); background: var(--bg3); padding: 7px 10px; border-radius: var(--radius-sm); margin: 8px 0; line-height: 1.5; }
+  .fu-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* ─── Progress Bar ──────────────────────────────────────── */
+  .prog-bar { height: 5px; background: var(--bg4); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .prog-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width .4s; }
+  .prog-fill.partial { background: var(--amber); }
+
+  /* ─── Payment Card ──────────────────────────────────────── */
+  .pay-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+  .pay-cell {
+    background: var(--bg3); border-radius: var(--radius-sm);
+    padding: 10px 12px; border: 1px solid var(--border);
+    transition: border-color .15s;
+  }
+  .pay-cell.paid { border-color: rgba(34,199,138,0.3); background: rgba(34,199,138,0.05); }
+  .pay-cell-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+  .pay-cell-val { font-size: 15px; font-weight: 600; font-family: var(--mono); margin-bottom: 8px; }
+  .pay-cell.paid .pay-cell-val { color: var(--green); }
+
+  /* ─── Modal ─────────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.65);
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 32px 16px; z-index: 1000; overflow-y: auto;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 14px; width: 100%; max-width: 540px;
+    padding: 28px; box-shadow: 0 24px 60px rgba(0,0,0,.6);
+    animation: modal-in .2s ease;
+  }
+  @keyframes modal-in { from { transform: translateY(-10px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .modal-title { font-size: 17px; font-weight: 600; }
+  .modal-close { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 20px; padding: 4px; line-height: 1; border-radius: var(--radius-sm); }
+  .modal-close:hover { background: var(--bg3); color: var(--text); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .form-group label { font-size: 12px; font-weight: 500; color: var(--text2); }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm);
+    font-size: 13px; font-family: var(--font); outline: none;
+    transition: border-color .15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .form-group select option { background: var(--bg2); }
+  .modal-section { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .6px; margin: 16px 0 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; padding-top: 18px; border-top: 1px solid var(--border); margin-top: 8px; }
+  .modal-footer .btn-danger-outline { margin-right: auto; }
+
+  /* ─── Section Label ─────────────────────────────────────── */
+  .section-label {
+    font-size: 11px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: .6px; margin: 20px 0 10px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ─── Bar Chart ─────────────────────────────────────────── */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+  .bar-label { font-size: 12px; color: var(--text2); width: 100px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+  .bar-count { font-size: 12px; font-weight: 600; color: var(--text); min-width: 20px; text-align: right; }
+
+  /* ─── Empty State ───────────────────────────────────────── */
+  .empty { text-align: center; padding: 48px 20px; color: var(--text3); }
+  .empty svg { width: 40px; height: 40px; margin: 0 auto 12px; display: block; opacity: .3; }
+  .empty p { font-size: 14px; }
+
+  /* ─── Inline Editing ────────────────────────────────────── */
+  td.editable { cursor: text; position: relative; }
+  td.editable:hover { background: var(--bg3) !important; }
+  td.editable:hover::after {
+    content: '✎';
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--text3); pointer-events: none;
+  }
+  td.editable input, td.editable select {
+    background: var(--bg4); border: 1px solid var(--accent);
+    color: var(--text); padding: 3px 7px; border-radius: 4px;
+    font-size: 13px; font-family: var(--font); outline: none;
+    width: 100%; min-width: 80px;
+  }
+  td.editable select { cursor: pointer; }
+  tr.editing td { background: var(--bg3); }
+
+  /* ─── Scrollbar ─────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+  /* ─── Responsive ────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+    .pay-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .page { padding: 16px; }
+    .topbar { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">JF</div>
+    <div class="logo-name">JF Fuentes GC</div>
+    <div class="logo-sub">Sales CRM</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="showPage('pipeline',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Pipeline
+    </button>
+    <button class="nav-item" id="nav-followup" onclick="showPage('followup',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.17 2 2 0 012 .01h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Follow Up
+      <span class="nav-badge" id="overdue-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="showPage('payments',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+      Payments
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="today-box">
+      <div class="today-label">Today</div>
+      <div class="today-date" id="today-date">—</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn" onclick="exportData()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Lead
+      </button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="page-dashboard" class="page active">
+    <div class="stats-grid" id="dash-stats"></div>
+    <div class="two-col">
+      <div>
+        <div class="card" id="dash-status-card"></div>
+        <div class="card" id="dash-sources-card"></div>
+      </div>
+      <div>
+        <div class="card" id="dash-alerts-card"></div>
+        <div class="card" id="dash-rejection-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PIPELINE ── -->
+  <div id="page-pipeline" class="page">
+    <div class="filters">
+      <input id="pl-search" placeholder="Search name, ID, location…" oninput="renderPipeline()">
+      <select id="pl-status" onchange="renderPipeline()">
+        <option value="">All statuses</option>
+        <option>Approved</option><option>Follow Up</option><option>Estimating</option>
+        <option>Not Sent</option><option>Delayed</option><option>Rejected</option>
+      </select>
+      <select id="pl-type" onchange="renderPipeline()">
+        <option value="">All types</option>
+        <option>Bathroom</option><option>Kitchen</option><option>Basement</option>
+        <option>General Remodel</option><option>Full Home</option><option>Addition</option>
+        <option>Exterior</option><option>Other</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Est. #</th><th>Client</th><th>Location</th>
+          <th>Type</th><th>Status</th><th>Estimate</th><th>Channel</th><th></th>
+        </tr></thead>
+        <tbody id="pipeline-tbody"></tbody>
+      </table>
+    </div>
+    <div id="pipeline-empty" class="empty" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>No leads match your filters</p>
+    </div>
+  </div>
+
+  <!-- ── FOLLOW UP ── -->
+  <div id="page-followup" class="page">
+    <div id="followup-content"></div>
+  </div>
+
+  <!-- ── PAYMENTS ── -->
+  <div id="page-payments" class="page">
+    <div class="stats-grid three-col" id="pay-stats" style="grid-template-columns:repeat(3,1fr)"></div>
+    <div id="payments-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL ═══════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add Lead</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════════
+const SEED = [{"id":"#1083","name":"Mary Johnson","email":"mary@email.com","phone":"(240)555-0101","location":"Fort Washington, MD","status":"Rejected","type":"Basement","channel":"Organic","estAmt":16500,"homeVal":676739,"rejReason":"","probability":0.4,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1084","name":"Robert Rounds","email":"rrounds@aol.com","phone":"(301)555-0182","location":"Accokeek, MD","status":"Rejected","type":"Kitchen","channel":"Referral","estAmt":93700,"homeVal":704060,"rejReason":"Price too high","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1085","name":"Dave Martinez","email":"dave2rock@yahoo.com","phone":"(703)555-0193","location":"Silver Spring, MD","status":"Rejected","type":"Exterior","channel":"Local Service Ads","estAmt":35600,"homeVal":589000,"rejReason":"","probability":0.4,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1088","name":"Dan Seeley","email":"dan.seeley@gmail.com","phone":"(571)555-0144","location":"Sterling, VA","status":"Approved","type":"General Remodel","channel":"Local Service Ads","estAmt":3500,"homeVal":722500,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1093","name":"Linda Anderson","email":"landerson@gmail.com","phone":"(703)555-0155","location":"Ashburn, VA","status":"Approved","type":"Full Home","channel":"Local Service Ads","estAmt":141000,"homeVal":1100000,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1096","name":"Kristin Bennet","email":"mark.kristin.bennett@gmail.com","phone":"1(202)494-8036","location":"Waterford, VA","status":"Rejected","type":"Kitchen","channel":"Local Service Ads","estAmt":60000,"homeVal":1361300,"rejReason":"","probability":0.1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1097","name":"Alex Calingo","email":"jacalingo@gmail.com","phone":"(301)537-5957","location":"North Bethesda, MD","status":"Rejected","type":"Bathroom","channel":"Local Service Ads","estAmt":32650,"homeVal":445800,"rejReason":"Price Too High","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1100","name":"Dan Seeley (2nd)","email":"dan.seeley@gmail.com","phone":"(571)555-0144","location":"Sterling, VA","status":"Rejected","type":"Kitchen","channel":"Returning Client","estAmt":51000,"homeVal":700000,"rejReason":"Price Too High","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1112","name":"Todd Hamel","email":"hamelt33@yahoo.com","phone":"(808)375-4507","location":"Kensington, MD","status":"Rejected","type":"Bathroom","channel":"Local Service Ads","estAmt":35000,"homeVal":693700,"rejReason":"Diff Route","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1113","name":"Jamila Sobratti","email":"jamila541@hotmail.com","phone":"(240)418-9915","location":"Gaithersburg, MD","status":"Not Sent","type":"Bathroom","channel":"Local Service Ads","estAmt":0,"homeVal":394000,"rejReason":"","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1114","name":"George Weller","email":"geoweller77@gmail.com","phone":"(202)213-2006","location":"Gaithersburg, MD","status":"Rejected","type":"General Remodel","channel":"Local Service Ads","estAmt":31500,"homeVal":750000,"rejReason":"Diff Route","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1115","name":"Shanna Rives","email":"leighrivess@yahoo.com","phone":"(804)931-349","location":"Brandywine, MD","status":"Rejected","type":"General Remodel","channel":"Organic","estAmt":36000,"homeVal":344068,"rejReason":"Diff Route","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1116","name":"Zena Tadese","email":"taddessezzena@yahoo.com","phone":"(612)471-4346","location":"Germantown, MD","status":"Not Sent","type":"General Remodel","channel":"Referral","estAmt":0,"homeVal":575140,"rejReason":"Cancelled","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1117","name":"Rashidah Lawson","email":"rashidah.lawson@gmail.com","phone":"(202)374-5810","location":"Potomac, MD","status":"Rejected","type":"Kitchen","channel":"Local Service Ads","estAmt":91000,"homeVal":1300000,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1118","name":"Richard Steward","email":"rscbmg@verizon.net","phone":"301-873-1290","location":"Silver Spring, MD","status":"Rejected","type":"Bathroom","channel":"Organic","estAmt":12800,"homeVal":540000,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1119","name":"Jacob Park","email":"Jake.Park315@gmail.com","phone":"","location":"Germantown, MD","status":"Not Sent","type":"General Remodel","channel":"Local Service Ads","estAmt":0,"homeVal":404000,"rejReason":"bad lead","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1120","name":"Varin Bird","email":"petit_chickadee@yahoo.com","phone":"(571)393-0170","location":"Herndon, VA","status":"Rejected","type":"Addition","channel":"Organic","estAmt":159000,"homeVal":868505,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1121","name":"Margaret Kung","email":"margekang@gmail.com","phone":"(571)425-0665","location":"McLean, VA","status":"Rejected","type":"Basement","channel":"Local Service Ads","estAmt":104000,"homeVal":1929900,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1122","name":"Client Name Needed","email":"ccanterbury67@gmail.com","phone":"(540)454-4115","location":"Purcellville, VA","status":"Approved","type":"General Remodel","channel":"Local Service Ads","estAmt":7200,"homeVal":1708900,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1123","name":"Laurel Allen","email":"laurelallen.alt@gmail.com","phone":"(415)527-9239","location":"Rockville, MD","status":"Rejected","type":"Bathroom","channel":"Organic","estAmt":21250,"homeVal":1100000,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1124","name":"Randy Gilmore","email":"randall.gilmore@gmail.com","phone":"(303)472-6359","location":"Leesburg, VA","status":"Rejected","type":"Basement","channel":"Organic","estAmt":85000,"homeVal":825000,"rejReason":"","probability":0.8,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1125","name":"Jan Singleman","email":"jan.singelmann@gmail.com","phone":"(202)594-7179","location":"Washington, DC","status":"Delayed","type":"Full Home","channel":"Organic","estAmt":82000,"homeVal":1099000,"rejReason":"","probability":0.4,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1126","name":"Gary Belton","email":"gbelton08@yahoo.com","phone":"(757)647-6831","location":"Aldie, VA","status":"Rejected","type":"General Remodel","channel":"Local Service Ads","estAmt":16000,"homeVal":1242500,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1127","name":"Zak Johnson","email":"zakjohnson@gmail.com","phone":"(202)368-3032","location":"Reston, VA","status":"Approved","type":"Bathroom","channel":"Local Service Ads","estAmt":31300,"homeVal":695000,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1128","name":"Axel Schimmelpfennig","email":"aschimmelpfennig@me.com","phone":"(202)531-7996","location":"Chevy Chase, MD","status":"Approved","type":"Bathroom","channel":"Local Service Ads","estAmt":15300,"homeVal":2311000,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1129","name":"Christopher Williamson","email":"together@williamsonfamily.net","phone":"757-401-8136","location":"Purcellville, VA","status":"Rejected","type":"Bathroom","channel":"Local Service Ads","estAmt":30000,"homeVal":1202126,"rejReason":"","probability":0.4,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1130","name":"David Pichardo","email":"DLPDG08@gmail.com","phone":"(202)880-9132","location":"Silver Spring, MD","status":"Rejected","type":"General Remodel","channel":"Local Service Ads","estAmt":5200,"homeVal":563400,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1131","name":"Lamond Tucker","email":"2xtuckers@gmail.com","phone":"202-417-5320","location":"Fort Washington, MD","status":"Rejected","type":"Addition","channel":"Organic","estAmt":239000,"homeVal":415000,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1132","name":"Junior Reyes","email":"Jrcrazyblue14@gmail.com","phone":"(240)956-9700","location":"Gaithersburg, MD","status":"Rejected","type":"Bathroom","channel":"Local Service Ads","estAmt":0,"homeVal":420000,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1133","name":"Adrian Lawson","email":"lawsona46@gmail.com","phone":"","location":"Mt Rainier, MD","status":"Rejected","type":"General Remodel","channel":"Referral","estAmt":0,"homeVal":800000,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1134","name":"Placid D'Rozario","email":"hdrozario83@gmail.com","phone":"757-763-0300","location":"Sterling, VA","status":"Rejected","type":"General Remodel","channel":"Local Service Ads","estAmt":0,"homeVal":635000,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1135","name":"Dave Hunt","email":"WDMHunt@msn.com","phone":"(703)967-8928","location":"Great Falls, VA","status":"Rejected","type":"Basement","channel":"Organic","estAmt":0,"homeVal":831000,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1136","name":"Jesse Hince","email":"jessehince@yahoo.fr","phone":"(240)898-6313","location":"Brandywine, MD","status":"Rejected","type":"Basement","channel":"Local Service Ads","estAmt":0,"homeVal":393800,"rejReason":"","probability":0.6,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1137","name":"Amy Joncas","email":"amyw72j@aol.com","phone":"(571)289-0005","location":"Leesburg, VA","status":"Approved","type":"General Remodel","channel":"Local Service Ads","estAmt":0,"homeVal":1409800,"rejReason":"","probability":1,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1138","name":"Nawana Holt","email":"nawanaholt@gmail.com","phone":"(301)792-9781","location":"Fort Washington, MD","status":"Estimating","type":"Addition","channel":"Organic","estAmt":0,"homeVal":675000,"rejReason":"","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1139","name":"Glen Polo","email":"glenpolo@gmail.com","phone":"(757)735-3038","location":"Falls Church, VA","status":"Rejected","type":"General Remodel","channel":"Local Service Ads","estAmt":0,"homeVal":762000,"rejReason":"","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1140","name":"Amylee","email":"amyanyoha@gmail.com","phone":"(203)993-0179","location":"Silver Spring, MD","status":"Rejected","type":"Bathroom","channel":"","estAmt":11500,"homeVal":0,"rejReason":"","probability":0,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1141","name":"Allision Starkman","email":"allisonstarkman@gmail.com","phone":"(703)554-4632","location":"Ashburn, VA","status":"Follow Up","type":"Bathroom","channel":"Local Service Ads","estAmt":14900,"homeVal":0,"rejReason":"","probability":0.4,"nextFollowUp":"2026-06-05","lastContact":"2026-04-22","touchCount":4,"notes":"Wants an updated proposal"},{"id":"#1142","name":"Kati Carter","email":"kati@kcarterinteriors.com","phone":"","location":"Ashburn, VA","status":"Follow Up","type":"Full Home","channel":"Local Service Ads","estAmt":41450,"homeVal":0,"rejReason":"","probability":0.4,"nextFollowUp":"2026-04-25","lastContact":"2026-04-22","touchCount":3,"notes":"Client is still getting more quotes"},{"id":"#1143","name":"Sarah Nazeer","email":"sarah.nazeer28@gmail.com","phone":"(571)320-2120","location":"Sterling, VA","status":"Follow Up","type":"General Remodel","channel":"Local Service Ads","estAmt":36500,"homeVal":0,"rejReason":"","probability":0.4,"nextFollowUp":"2026-05-02","lastContact":"2026-04-22","touchCount":2,"notes":""},{"id":"#1144","name":"Margaret Kang","email":"margekang@gmail.com","phone":"(571)425-0665","location":"McLean, VA","status":"Estimating","type":"Bathroom","channel":"Local Service Ads","estAmt":0,"homeVal":0,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"","touchCount":0,"notes":""},{"id":"#1145","name":"Paul Skaife","email":"paulskaife1@mac.com","phone":"(301)821-6415","location":"Rockville, MD","status":"Follow Up","type":"General Remodel","channel":"Local Service Ads","estAmt":41050,"homeVal":0,"rejReason":"","probability":0.4,"nextFollowUp":"2026-05-02","lastContact":"2026-04-22","touchCount":0,"notes":""},{"id":"#1146","name":"Tommy Lee","email":"tlee.gcl@gmail.com","phone":"(301)500-7481","location":"Gaithersburg, MD","status":"Follow Up","type":"Addition","channel":"Local Service Ads","estAmt":84500,"homeVal":0,"rejReason":"","probability":0.4,"nextFollowUp":"2026-04-24","lastContact":"2026-04-24","touchCount":0,"notes":""},{"id":"#1147","name":"Vera Champ","email":"valc3960@outlook.com","phone":"(703)303-7347","location":"Ashburn, VA","status":"Follow Up","type":"Bathroom","channel":"Local Service Ads","estAmt":85000,"homeVal":0,"rejReason":"","probability":0.2,"nextFollowUp":"","lastContact":"2026-04-22","touchCount":0,"notes":"No answer, left a message"}];
+
+// ── State ────────────────────────────────────────────────────
+let leads = [];
+let payments = {};
+const STORAGE_KEY = 'jf_fuentes_crm_v2';
+const PAY_KEY = 'jf_fuentes_pay_v2';
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const savedPay = localStorage.getItem(PAY_KEY);
+    leads = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(SEED));
+    payments = savedPay ? JSON.parse(savedPay) : {};
+    // Ensure payment records exist for approved jobs
+    leads.filter(l => l.status === 'Approved').forEach(l => {
+      if (!payments[l.id]) payments[l.id] = {deposit:0,p2:0,p3:0,final:0};
+    });
+  } catch(e) {
+    leads = JSON.parse(JSON.stringify(SEED));
+    payments = {};
+  }
+}
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+    localStorage.setItem(PAY_KEY, JSON.stringify(payments));
+  } catch(e) {}
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+const fmt = n => n ? '$' + Math.round(n).toLocaleString() : '—';
+const today = () => new Date().toISOString().split('T')[0];
+function isOverdue(l) {
+  if (!l.nextFollowUp) return false;
+  return l.nextFollowUp < today();
+}
+function badgeClass(s) {
+  const m = {'Approved':'badge-approved','Follow Up':'badge-followup','Rejected':'badge-rejected','Not Sent':'badge-notsent','Estimating':'badge-estimating','Delayed':'badge-delayed'};
+  return m[s] || 'badge-delayed';
+}
+function nextId() {
+  const nums = leads.map(l => parseInt(l.id.replace('#',''))).filter(n => !isNaN(n));
+  return '#' + (Math.max(...nums) + 1);
+}
+
+// ── Navigation ───────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {dashboard:'Dashboard',pipeline:'Pipeline',followup:'Follow Up',payments:'Payments'};
+  document.getElementById('page-title').textContent = titles[id] || id;
+  if (id === 'dashboard') renderDashboard();
+  else if (id === 'pipeline') renderPipeline();
+  else if (id === 'followup') renderFollowUp();
+  else if (id === 'payments') renderPayments();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const approved = leads.filter(l => l.status === 'Approved');
+  const wonRev = approved.reduce((s,l) => s + l.estAmt, 0);
+  const fuLeads = leads.filter(l => l.status === 'Follow Up');
+  const pipeline = fuLeads.reduce((s,l) => s + l.estAmt, 0) +
+                   leads.filter(l => l.status === 'Delayed').reduce((s,l) => s + l.estAmt, 0);
+  const overdue = fuLeads.filter(isOverdue).length;
+  const winRate = leads.length ? Math.round(approved.length / leads.length * 100) : 0;
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card green"><div class="stat-label">Revenue Won</div><div class="stat-val">${fmt(wonRev)}</div><div class="stat-sub">${approved.length} approved jobs</div></div>
+    <div class="stat-card accent"><div class="stat-label">Open Pipeline</div><div class="stat-val">${fmt(pipeline)}</div><div class="stat-sub">${fuLeads.length} active follow-ups</div></div>
+    <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-val">${leads.length}</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card ${winRate > 20 ? 'green' : 'amber'}"><div class="stat-label">Win Rate</div><div class="stat-val">${winRate}%</div><div class="stat-sub">Leads closed</div></div>
+  `;
+
+  // Status breakdown
+  const statuses = ['Approved','Follow Up','Estimating','Not Sent','Delayed','Rejected'];
+  const counts = {};
+  statuses.forEach(s => counts[s] = leads.filter(l => l.status === s).length);
+  const maxCount = Math.max(...Object.values(counts));
+  const colors = {Approved:'var(--green)',  'Follow Up':'var(--amber)', Estimating:'var(--purple)', 'Not Sent':'var(--accent)', Delayed:'var(--text3)', Rejected:'var(--red)'};
+  document.getElementById('dash-status-card').innerHTML = `
+    <div class="card-title">Pipeline by status</div>
+    ${statuses.map(s => `
+      <div class="bar-row">
+        <div class="bar-label">${s}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${maxCount?Math.round(counts[s]/maxCount*100):0}%;background:${colors[s]}"></div></div>
+        <div class="bar-count">${counts[s]}</div>
+      </div>`).join('')}
+  `;
+
+  // Lead sources
+  const channels = {};
+  leads.forEach(l => { if (l.channel) channels[l.channel] = (channels[l.channel]||0)+1; });
+  const chList = Object.entries(channels).sort((a,b) => b[1]-a[1]);
+  const maxCh = chList[0] ? chList[0][1] : 1;
+  document.getElementById('dash-sources-card').innerHTML = `
+    <div class="card-title">Lead sources</div>
+    ${chList.slice(0,5).map(([c,n]) => `
+      <div class="bar-row">
+        <div class="bar-label">${c||'Unknown'}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/maxCh*100)}%;background:var(--accent)"></div></div>
+        <div class="bar-count">${n}</div>
+      </div>`).join('')}
+  `;
+
+  // Alerts
+  const notsent = leads.filter(l => l.status === 'Not Sent');
+  let alertsHtml = '<div class="card-title">Alerts</div>';
+  if (overdue > 0) alertsHtml += `<div class="alert alert-red">⚠ ${overdue} follow-up${overdue>1?'s are':' is'} overdue — go to Follow Up tab</div>`;
+  if (notsent.length > 0) alertsHtml += `<div class="alert alert-blue">📋 ${notsent.length} lead${notsent.length>1?'s have':' has'} no estimate sent: ${notsent.map(l=>l.name).join(', ')}</div>`;
+  const noPayments = approved.filter(l => payments[l.id] && Object.values(payments[l.id]).every(v=>v===0) && l.estAmt > 0);
+  if (noPayments.length > 0) alertsHtml += `<div class="alert alert-amber">💰 ${noPayments.length} approved job${noPayments.length>1?'s have':' has'} no payments logged — update Payments tab</div>`;
+  if (overdue === 0 && notsent.length === 0 && noPayments.length === 0) alertsHtml += `<div style="color:var(--green);font-size:13px;padding:8px 0">✓ All clear — no action items right now</div>`;
+  document.getElementById('dash-alerts-card').innerHTML = alertsHtml;
+
+  // Rejection reasons
+  const rej = {};
+  leads.filter(l => l.status==='Rejected' && l.rejReason).forEach(l => rej[l.rejReason] = (rej[l.rejReason]||0)+1);
+  const rejList = Object.entries(rej).sort((a,b) => b[1]-a[1]);
+  document.getElementById('dash-rejection-card').innerHTML = `
+    <div class="card-title">Rejection reasons</div>
+    ${rejList.length ? rejList.map(([r,n]) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span style="color:var(--text2)">${r}</span><span style="font-weight:600">${n}</span>
+      </div>`).join('') : '<div style="color:var(--text3);font-size:13px;padding:8px 0">No rejection reasons logged yet</div>'}
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PIPELINE — with inline editing
+// ═══════════════════════════════════════════════════════════════
+const STATUSES = ['Not Sent','Estimating','Follow Up','Approved','Delayed','Rejected'];
+const TYPES    = ['Bathroom','Kitchen','Basement','General Remodel','Full Home','Addition','Exterior','Other'];
+const CHANNELS = ['Local Service Ads','Organic','Referral','Returning Client',''];
+
+function renderPipeline() {
+  const search  = (document.getElementById('pl-search')?.value || '').toLowerCase();
+  const statusF = document.getElementById('pl-status')?.value || '';
+  const typeF   = document.getElementById('pl-type')?.value || '';
+  const filtered = leads.filter(l => {
+    if (statusF && l.status !== statusF) return false;
+    if (typeF   && l.type   !== typeF)   return false;
+    if (search && !l.name.toLowerCase().includes(search) &&
+        !l.id.toLowerCase().includes(search) &&
+        !l.location.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const tbody = document.getElementById('pipeline-tbody');
+  const empty = document.getElementById('pipeline-empty');
+
+  tbody.innerHTML = filtered.map(l => `
+    <tr data-id="${l.id}">
+      <td class="mono">${l.id}</td>
+      <td class="editable name"      data-field="name"     onclick="startEdit(this)">${l.name}</td>
+      <td class="editable"           data-field="location" onclick="startEdit(this)" style="color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.location.split(',')[0]}</td>
+      <td class="editable"           data-field="type"     onclick="startEdit(this)" data-type="select">${l.type||'—'}</td>
+      <td class="editable"           data-field="status"   onclick="startEdit(this)" data-type="select"><span class="badge ${badgeClass(l.status)}">${l.status}</span></td>
+      <td class="editable amount"    data-field="estAmt"   onclick="startEdit(this)" data-type="number">${l.estAmt ? fmt(l.estAmt) : '—'}</td>
+      <td class="editable"           data-field="channel"  onclick="startEdit(this)" data-type="select" style="color:var(--text3);font-size:12px">${l.channel||'—'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openEditModal('${l.id}')">More</button></td>
+    </tr>`).join('');
+
+  empty.style.display = filtered.length ? 'none' : 'block';
+}
+
+// ── Inline edit logic ────────────────────────────────────────
+function startEdit(td) {
+  if (td.querySelector('input,select')) return; // already editing
+  const tr    = td.closest('tr');
+  const id    = tr.dataset.id;
+  const field = td.dataset.field;
+  const kind  = td.dataset.type || 'text';
+  const lead  = leads.find(l => l.id === id);
+  if (!lead) return;
+
+  tr.classList.add('editing');
+  const current = lead[field] ?? '';
+
+  let input;
+  if (kind === 'select') {
+    const opts = field === 'status' ? STATUSES : field === 'type' ? TYPES : CHANNELS;
+    input = document.createElement('select');
+    opts.forEach(o => {
+      const op = document.createElement('option');
+      op.value = o; op.textContent = o || 'Unknown';
+      if (o === current) op.selected = true;
+      input.appendChild(op);
+    });
+    input.addEventListener('change', () => commitEdit(td, input.value, lead, field, tr));
+    input.addEventListener('blur',   () => commitEdit(td, input.value, lead, field, tr));
+  } else {
+    input = document.createElement('input');
+    input.type  = kind === 'number' ? 'number' : 'text';
+    input.value = kind === 'number' ? (lead[field] || '') : current;
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  commitEdit(td, input.value, lead, field, tr);
+      if (e.key === 'Escape') cancelEdit(td, lead, field, tr);
+    });
+    input.addEventListener('blur', () => commitEdit(td, input.value, lead, field, tr));
+  }
+
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  if (input.tagName === 'INPUT') input.select();
+}
+
+function commitEdit(td, newVal, lead, field, tr) {
+  if (td._committing) return;
+  td._committing = true;
+
+  const parsed = (field === 'estAmt' || field === 'homeVal') ? (parseFloat(newVal)||0) : newVal.trim();
+  lead[field] = parsed;
+
+  // Ensure payment record if newly approved
+  if (field === 'status' && parsed === 'Approved' && !payments[lead.id])
+    payments[lead.id] = {deposit:0,p2:0,p3:0,final:0};
+
+  saveData();
+  tr.classList.remove('editing');
+  renderPipelineCell(td, lead, field);
+  updateBadge();
+  delete td._committing;
+}
+
+function cancelEdit(td, lead, field, tr) {
+  tr.classList.remove('editing');
+  renderPipelineCell(td, lead, field);
+}
+
+function renderPipelineCell(td, lead, field) {
+  if (field === 'status') {
+    td.innerHTML = `<span class="badge ${badgeClass(lead.status)}">${lead.status}</span>`;
+  } else if (field === 'estAmt') {
+    td.textContent = lead.estAmt ? fmt(lead.estAmt) : '—';
+  } else if (field === 'location') {
+    td.textContent = (lead.location||'').split(',')[0] || '—';
+  } else {
+    td.textContent = lead[field] || '—';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FOLLOW UP
+// ═══════════════════════════════════════════════════════════════
+function renderFollowUp() {
+  const fuLeads = leads.filter(l => l.status === 'Follow Up');
+  const overdue = fuLeads.filter(isOverdue);
+  const upcoming = fuLeads.filter(l => !isOverdue(l) && l.nextFollowUp);
+  const nodate = fuLeads.filter(l => !l.nextFollowUp);
+
+  function card(l) {
+    const od = isOverdue(l);
+    const dots = Array.from({length:7}, (_,i) => `<div class="touch-dot ${i<l.touchCount?'done':''}"></div>`).join('');
+    const cadence = ['Same day','Day 1','Day 2','Day 4','Day 7','Day 14','Day 21','Day 90'];
+    const nextStep = cadence[Math.min(l.touchCount, cadence.length-1)];
+    return `<div class="fu-card ${od?'overdue':''}">
+      <div class="fu-top">
+        <div>
+          <div class="fu-name">${l.name} <span style="font-size:12px;font-weight:400;color:var(--text3)">${l.id}</span></div>
+          <div class="fu-meta" style="margin-top:5px">
+            ${l.phone ? `<a href="tel:${l.phone}">📞 ${l.phone}</a>` : '<span>No phone</span>'}
+            <span>🔨 ${l.type||'—'}</span>
+            <span style="font-weight:600;color:var(--text)">${fmt(l.estAmt)}</span>
+            <span>📍 ${l.location.split(',')[0]}</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:12px">
+          ${od ? `<span class="badge badge-overdue">OVERDUE</span>` : `<span class="badge badge-followup">Touch #${l.touchCount}</span>`}
+          ${l.nextFollowUp ? `<div style="font-size:11px;color:var(--text3);margin-top:5px">Due: ${l.nextFollowUp}</div>` : `<div style="font-size:11px;color:var(--text3);margin-top:5px">No date set</div>`}
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Next: ${nextStep}</div>
+        </div>
+      </div>
+      <div class="touch-track">${dots}<span class="touch-label">${l.touchCount}/7 touches</span></div>
+      ${l.notes ? `<div class="fu-note">${l.notes.replace(/\n/g,'<br>')}</div>` : ''}
+      <div class="fu-actions">
+        <button class="btn btn-sm" onclick="logTouch('${l.id}','Called')">📞 Called</button>
+        <button class="btn btn-sm" onclick="logTouch('${l.id}','Emailed')">📧 Emailed</button>
+        <button class="btn btn-sm" onclick="logTouch('${l.id}','Texted')">💬 Texted</button>
+        <button class="btn btn-sm" onclick="openEditModal('${l.id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-success" onclick="changeStatus('${l.id}','Approved')">✓ Won</button>
+        <button class="btn btn-sm btn-danger" onclick="changeStatus('${l.id}','Rejected')">✗ Lost</button>
+      </div>
+    </div>`;
+  }
+
+  let html = '';
+  if (overdue.length) {
+    html += `<div class="section-label" style="color:var(--red)">⚠ Overdue (${overdue.length})</div>`;
+    html += overdue.map(card).join('');
+  }
+  if (upcoming.length) {
+    html += `<div class="section-label">Upcoming follow-ups (${upcoming.length})</div>`;
+    html += upcoming.map(card).join('');
+  }
+  if (nodate.length) {
+    html += `<div class="section-label">Needs a follow-up date (${nodate.length})</div>`;
+    html += nodate.map(card).join('');
+  }
+  if (!fuLeads.length) {
+    html = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><path d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622C17.176 19.29 21 14.591 21 9a12.02 12.02 0 00-.382-3.016z"/></svg><p>No active follow-ups right now</p></div>`;
+  }
+  document.getElementById('followup-content').innerHTML = html;
+  updateBadge();
+}
+
+function logTouch(id, method) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  l.touchCount = Math.min((l.touchCount||0) + 1, 7);
+  l.lastContact = today();
+  const days = [0,1,2,4,7,14,21,90];
+  const d = new Date();
+  d.setDate(d.getDate() + days[Math.min(l.touchCount, days.length-1)]);
+  l.nextFollowUp = d.toISOString().split('T')[0];
+  const timestamp = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  l.notes = (l.notes ? l.notes + '\n' : '') + `${timestamp}: ${method}`;
+  saveData(); renderFollowUp();
+}
+
+function changeStatus(id, status) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  l.status = status;
+  if (status === 'Approved' && !payments[id]) payments[id] = {deposit:0,p2:0,p3:0,final:0};
+  saveData(); renderFollowUp();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PAYMENTS
+// ═══════════════════════════════════════════════════════════════
+function renderPayments() {
+  const approved = leads.filter(l => l.status === 'Approved');
+  approved.forEach(l => { if (!payments[l.id]) payments[l.id] = {deposit:0,p2:0,p3:0,final:0}; });
+  const totalContract = approved.reduce((s,l) => s + l.estAmt, 0);
+  const totalCollected = approved.reduce((s,l) => {
+    const p = payments[l.id]||{};
+    return s + (p.deposit||0) + (p.p2||0) + (p.p3||0) + (p.final||0);
+  }, 0);
+  const outstanding = totalContract - totalCollected;
+
+  document.getElementById('pay-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Contract Value</div><div class="stat-val">${fmt(totalContract)}</div><div class="stat-sub">${approved.length} jobs</div></div>
+    <div class="stat-card green"><div class="stat-label">Collected</div><div class="stat-val">${fmt(totalCollected)}</div></div>
+    <div class="stat-card ${outstanding>0?'amber':''}"><div class="stat-label">Outstanding</div><div class="stat-val">${fmt(outstanding)}</div></div>
+  `;
+
+  if (!approved.length) {
+    document.getElementById('payments-list').innerHTML = `<div class="empty"><p>No approved jobs yet</p></div>`;
+    return;
+  }
+
+  document.getElementById('payments-list').innerHTML = approved.map(l => {
+    const p = payments[l.id]||{deposit:0,p2:0,p3:0,final:0};
+    const contract = l.estAmt || 0;
+    const quarter = Math.round(contract * 0.25);
+    const collected = (p.deposit||0)+(p.p2||0)+(p.p3||0)+(p.final||0);
+    const pct = contract ? Math.round(collected/contract*100) : 0;
+    const payFields = [
+      {key:'deposit', label:'Deposit (25%)'},
+      {key:'p2', label:'Payment 2 (25%)'},
+      {key:'p3', label:'Payment 3 (25%)'},
+      {key:'final', label:'Final (25%)'}
+    ];
+    return `<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:600">${l.name} <span class="mono" style="font-size:12px">${l.id}</span></div>
+          <div style="font-size:12px;color:var(--text2);margin-top:3px">${l.type} · ${l.location.split(',')[0]}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:700;font-family:var(--mono)">${contract ? fmt(contract) : '<span style="color:var(--amber)">No amount set</span>'}</div>
+          <div style="font-size:12px;color:${pct===100?'var(--green)':'var(--text2)'}">${pct}% collected</div>
+        </div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill ${pct<100&&pct>0?'partial':''}" style="width:${pct}%"></div></div>
+      <div class="pay-grid">
+        ${payFields.map(f => {
+          const paid = (p[f.key]||0) > 0;
+          return `<div class="pay-cell ${paid?'paid':''}">
+            <div class="pay-cell-label">${f.label}</div>
+            <div class="pay-cell-val">${paid ? fmt(p[f.key]) : (contract ? fmt(quarter) : '—')}</div>
+            <button class="btn btn-sm ${paid?'btn-success':'btn-ghost'}" style="width:100%;justify-content:center" onclick="togglePayment('${l.id}','${f.key}',${quarter})">
+              ${paid ? '✓ Paid' : 'Mark paid'}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePayment(id, field, amt) {
+  if (!payments[id]) payments[id] = {deposit:0,p2:0,p3:0,final:0};
+  payments[id][field] = (payments[id][field]||0) > 0 ? 0 : amt;
+  saveData(); renderPayments();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MODAL — ADD / EDIT
+// ═══════════════════════════════════════════════════════════════
+function openAddModal() {
+  document.getElementById('modal-title').textContent = 'Add New Lead';
+  document.getElementById('modal-body').innerHTML = buildForm(null);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function openEditModal(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('modal-title').textContent = l.name;
+  document.getElementById('modal-body').innerHTML = buildForm(l);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function buildForm(l) {
+  const isNew = !l;
+  const v = (f, d='') => l ? (l[f]!==undefined?l[f]:d) : d;
+  const statuses = ['Not Sent','Estimating','Follow Up','Approved','Delayed','Rejected'];
+  const types = ['Bathroom','Kitchen','Basement','General Remodel','Full Home','Addition','Exterior','Other'];
+  const channels = ['Local Service Ads','Organic','Referral','Returning Client',''];
+
+  return `
+    <div class="form-row">
+      <div class="form-group"><label>Client Name *</label><input id="f-name" value="${v('name')}"></div>
+      <div class="form-group"><label>Est. # (auto if blank)</label><input id="f-id" value="${isNew?'':v('id')}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone</label><input id="f-phone" value="${v('phone')}" type="tel"></div>
+      <div class="form-group"><label>Email</label><input id="f-email" value="${v('email')}" type="email"></div>
+    </div>
+    <div class="form-group"><label>Location / Address</label><input id="f-loc" value="${v('location')}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Status</label>
+        <select id="f-status">${statuses.map(s=>`<option value="${s}" ${v('status')===s?'selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Project Type</label>
+        <select id="f-type">${types.map(t=>`<option value="${t}" ${v('type')===t?'selected':''}>${t}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Estimate Amount ($)</label><input id="f-amt" type="number" value="${v('estAmt','')}"></div>
+      <div class="form-group"><label>Home Value ($)</label><input id="f-hv" type="number" value="${v('homeVal','')}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Marketing Channel</label>
+        <select id="f-ch">${channels.map(c=>`<option value="${c}" ${v('channel')===c?'selected':''}>${c||'Unknown'}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Next Follow-Up Date</label><input id="f-nfu" type="date" value="${v('nextFollowUp')}"></div>
+    </div>
+    <div class="form-group"><label>Rejection Reason</label><input id="f-rej" value="${v('rejReason')}"></div>
+    <div class="form-group"><label>Notes</label><textarea id="f-notes">${v('notes')}</textarea></div>
+    <div class="modal-footer">
+      ${!isNew ? `<button class="btn btn-danger" onclick="deleteLead('${l.id}')">Delete</button>` : ''}
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveLead('${isNew?'':l.id}')">${isNew?'Add Lead':'Save Changes'}</button>
+    </div>`;
+}
+
+function saveLead(oldId) {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Please enter a client name'); return; }
+  const existing = oldId ? leads.find(x => x.id === oldId) : null;
+  const idVal = document.getElementById('f-id').value.trim() || (oldId || nextId());
+  const updated = {
+    id: idVal, name,
+    phone: document.getElementById('f-phone').value,
+    email: document.getElementById('f-email').value,
+    location: document.getElementById('f-loc').value,
+    status: document.getElementById('f-status').value,
+    type: document.getElementById('f-type').value,
+    channel: document.getElementById('f-ch').value,
+    estAmt: parseFloat(document.getElementById('f-amt').value) || 0,
+    homeVal: parseFloat(document.getElementById('f-hv').value) || 0,
+    rejReason: document.getElementById('f-rej').value,
+    nextFollowUp: document.getElementById('f-nfu').value,
+    probability: existing ? existing.probability : 0.2,
+    lastContact: existing ? existing.lastContact : '',
+    touchCount: existing ? existing.touchCount : 0,
+    notes: document.getElementById('f-notes').value,
+  };
+  if (updated.status === 'Approved' && !payments[updated.id]) payments[updated.id] = {deposit:0,p2:0,p3:0,final:0};
+  if (oldId && existing) {
+    const idx = leads.findIndex(x => x.id === oldId);
+    leads[idx] = updated;
+  } else {
+    leads.unshift(updated);
+  }
+  saveData(); closeModal();
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-','');
+  if (activePage === 'pipeline') renderPipeline();
+  else if (activePage === 'followup') renderFollowUp();
+  else if (activePage === 'payments') renderPayments();
+  else renderDashboard();
+  updateBadge();
+}
+
+function deleteLead(id) {
+  if (!confirm(`Delete this lead? This cannot be undone.`)) return;
+  leads = leads.filter(x => x.id !== id);
+  delete payments[id];
+  saveData(); closeModal();
+  renderPipeline(); updateBadge();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════════════════
+function exportData() {
+  const headers = ['Est #','Name','Phone','Email','Location','Status','Type','Channel','Estimate','Home Value','Rej Reason','Next Follow Up','Last Contact','Touches','Notes'];
+  const rows = leads.map(l => [
+    l.id, l.name, l.phone, l.email, l.location, l.status, l.type, l.channel,
+    l.estAmt, l.homeVal, l.rejReason, l.nextFollowUp, l.lastContact, l.touchCount, (l.notes||'').replace(/\n/g,' | ')
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = `jf-fuentes-crm-${today()}.csv`;
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BADGE & INIT
+// ═══════════════════════════════════════════════════════════════
+function updateBadge() {
+  const n = leads.filter(l => l.status === 'Follow Up' && isOverdue(l)).length;
+  const badge = document.getElementById('overdue-badge');
+  badge.textContent = n;
+  badge.style.display = n ? 'inline-block' : 'none';
+}
+
+// Init
+loadData();
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+renderDashboard();
+updateBadge();
+</script>
+</body>
+</html>
